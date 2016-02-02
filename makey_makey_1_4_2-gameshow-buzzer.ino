@@ -106,15 +106,10 @@ int loopCounter = 0;
 // gameplay
 int winnersPin = 0; //either 14 or 16
 int runTimer = 0; 
-int runFor = 30; // time in seconds
-long day = 86400000; // 86400000 milliseconds in a day
-long hour = 3600000; // 3600000 milliseconds in an hour
-long minute = 60000; // 60000 milliseconds in a minute
-long second =  1000; // 1000 milliseconds in a second
-long millisecond = 1;
 long timeStart = millis()+10000;
 long timeNow = timeStart;
 int blinkerCounter = 0;
+
 
 ///////////////////////////
 // FUNCTIONS //////////////
@@ -131,6 +126,11 @@ void addDelay();
 void cycleLEDs();
 void danceLeds();
 void updateOutLEDs();
+/// game play functions ///
+void resetGameplay();
+void setWinner(int key);
+void lightPlayers();
+void startGameplayTimer();
 
 //////////////////////
 // SETUP /////////////
@@ -155,12 +155,8 @@ void loop()
   sendMouseMovementEvents();
   cycleLEDs();
   updateOutLEDs();
-
-  lightPlayers();
   addDelay();
-  
 }
-
 
 //////////////////////////
 // INITIALIZE ARDUINO
@@ -519,79 +515,18 @@ void addDelay() {
     int wait = TARGET_LOOP_TIME - loopTime;
     delayMicroseconds(wait);
   }
-  if(blinkerCounter==1){
-    Serial.println("BLINK");
-    blinkerCounter=0;
-    delay(200);
-  } else {
-    blinkerCounter=1;
-    delay(200);
-  }
+
   prevTime = micros();
-  if(runTimer==1){
-    timeNow = millis()-timeStart;
-    Serial.println(timeNow);
-    if(timeNow>0){
-      resetGameplay();
-    }
-  }
+
 #ifdef DEBUG_TIMING
   if (loopCounter == 0) {
     int t = micros()-prevTime;
     Serial.println(t);
   }
-  
   loopCounter++;
   loopCounter %= 999;
 #endif
-/*
-  prevTime = micros();
-  int t = micros()-prevTime;
-  Serial.println(t);
-  delay(500);*/
-}
 
-void resetGameplay(){
-    winnersPin = 0; //either 14 or 16
-    runTimer = 0; 
-    //runFor = 30; // time in seconds
-    timeStart = millis()+10000;
-    timeNow = timeStart;
-    digitalWrite(outputK, HIGH);
-    digitalWrite(outputM, HIGH);
-}
-
-void setWinner(int key){
-  if(key==6){
-    winnersPin = 14;
-  } else {
-    winnersPin = 16;
-  }
-  startGameplayTimer();
-}
-
-void lightPlayers(){
-  if(runTimer==1){
-    if(winnersPin==14 && blinkerCounter==1){
-      digitalWrite(outputK, HIGH);
-      digitalWrite(outputM, LOW);
-    } else if(winnersPin==16 && blinkerCounter==1) {
-      digitalWrite(outputK, LOW);
-      digitalWrite(outputM, HIGH);
-    } 
-  } else { 
-    if(blinkerCounter==1){
-      digitalWrite(outputK, HIGH);
-      digitalWrite(outputM, HIGH);
-    } else {
-      digitalWrite(outputK, LOW);
-      digitalWrite(outputM, LOW);
-    }
-  }
-}
-
-void startGameplayTimer(){
-  runTimer = 1;
 }
 
 ///////////////////////////
@@ -744,9 +679,6 @@ void updateOutLEDs()
       if (inputs[i].isKey)
       {
         keyPressed = 1;
-        if(runTimer==0){
-          setWinner(i);
-        }
 #ifdef DEBUG
         Serial.print("Key ");
         Serial.print(i);
@@ -762,19 +694,18 @@ void updateOutLEDs()
 
   if (keyPressed)
   {
-    
-    //digitalWrite(outputK, LOW);
-    //digitalWrite(outputM, HIGH);
+    digitalWrite(outputK, HIGH);
+    digitalWrite(outputM, HIGH);
     TXLED1;
   }
   else
   {
-    //digitalWrite(outputK, HIGH);
-    //digitalWrite(outputM, LOW);
+    digitalWrite(outputK, LOW);
+    digitalWrite(outputM, LOW);
     TXLED0;
   }
 
-  if (mousePressed)
+  /*if (mousePressed)
   {
     digitalWrite(outputM, HIGH);
     RXLED1;
@@ -783,11 +714,51 @@ void updateOutLEDs()
   {
     digitalWrite(outputM, LOW);
     RXLED0;
+  }*/
+}
+
+/// Gameplay functions ///
+void resetGameplay(){
+    winnersPin = 0; //either 14 or 16
+    runTimer = 0; 
+    //runFor = 30; // time in seconds
+    timeStart = millis()+10000;
+    timeNow = timeStart;
+    digitalWrite(outputK, HIGH);
+    digitalWrite(outputM, HIGH);
+}
+
+void setWinner(int key){
+  if(key==6){
+    winnersPin = 14;
+  } else {
+    winnersPin = 16;
+  }
+  startGameplayTimer();
+}
+
+void lightPlayers(){
+  if(runTimer==1){
+    if(winnersPin==14 && blinkerCounter==1){
+      digitalWrite(outputK, HIGH);
+      digitalWrite(outputM, LOW);
+    } else if(winnersPin==16 && blinkerCounter==1) {
+      digitalWrite(outputK, LOW);
+      digitalWrite(outputM, HIGH);
+    } 
+  } else { 
+    if(blinkerCounter==1){
+      digitalWrite(outputK, HIGH);
+      digitalWrite(outputM, HIGH);
+    } else {
+      digitalWrite(outputK, LOW);
+      digitalWrite(outputM, LOW);
+    }
   }
 }
 
-
-
-
+void startGameplayTimer(){
+  runTimer = 1;
+}
 
 
