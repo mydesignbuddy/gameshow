@@ -1,0 +1,13 @@
+{
+  "description": "Game show app",
+  "main": "main.html",
+  "node-main": "app.js",
+  "name": "Game Show",
+  "version": "1.0",
+  "window": {
+    "height": 600,
+    "width": 650,
+    "title": "Game Show",
+    "toolbar": true
+  }
+}

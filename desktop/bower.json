@@ -1,0 +1,23 @@
+{
+  "name": "Game Show",
+  "description": "Game show app",
+  "main": "main.html",
+  "authors": [
+    "Buddy Toups <buddyt@blinds.com>"
+  ],
+  "license": "MIT",
+  "moduleType": [],
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "jquery": "~2.2.0"
+  }
+}

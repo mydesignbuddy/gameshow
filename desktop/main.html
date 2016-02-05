@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="Game show app">
+    <meta name="author" content="Buddy Toups">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Game Show</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="container">
+        Game Show
+        
+        <a href="2-player-buzzer.html" class="btn btn-primary">2 Player Buzzer UI</a>
+    </div>
+    
+    <script>
+        require('nwjs-osx-menu')(window);
+        
+        nw.Window.get().menu = menu;
+        
+        var gui = require('nw.gui');
+        var menu = new gui.Menu({type:"menubar"});
+        menu.createMacBuiltin("your-app-name");
+        var submenu = new gui.Menu();
+        submenu.append(new gui.MenuItem({ label: 'Item A' }));
+        submenu.append(new gui.MenuItem({ label: 'Item B' }));
+        menu.append(new gui.MenuItem({
+            label: 'First Menu',
+            submenu: submenu
+        }));
+        gui.Window.get().menu = menu;
+    </script>
+  </body>
+</html>
