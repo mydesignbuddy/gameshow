@@ -22,9 +22,9 @@
 /////////////////////////
 // DEBUG DEFINITIONS ////               
 /////////////////////////
-//#define DEBUG
-//#define DEBUG2 
-//#define DEBUG3 
+#define DEBUG
+#define DEBUG2 
+#define DEBUG3 
 //#define DEBUG_TIMING
 //#define DEBUG_MOUSE
 //#define DEBUG_TIMING2
@@ -106,9 +106,12 @@ int loopCounter = 0;
 // gameplay
 int winnersPin = 0; //either 14 or 16
 int runTimer = 0; 
-long timeStart = millis()+10000;
+int timeout = 2000;
+long timeStart = millis()+timeout;
 long timeNow = timeStart;
 int blinkerCounter = 0;
+
+String output = "";
 
 
 ///////////////////////////
@@ -155,7 +158,26 @@ void loop()
   sendMouseMovementEvents();
   cycleLEDs();
   updateOutLEDs();
+  lightPlayers();
   addDelay();
+
+  if(blinkerCounter==0){
+    blinkerCounter = 1;
+  } else {
+    blinkerCounter = 0;
+  }
+
+  if(runTimer==1){
+    timeNow = millis()-timeStart;
+    if(timeNow>0){
+      runTimer = 0;
+    }
+    #ifdef DEBUG
+      Serial.println(timeNow);
+    #endif
+  } else {
+    resetGameplay();
+  }
 }
 
 //////////////////////////
@@ -352,46 +374,6 @@ void updateInputStates() {
   }
 #endif
 }
-
-/*
-///////////////////////////
- // SEND KEY EVENTS (obsolete, used in versions with pro micro bootloader)
- ///////////////////////////
- void sendKeyEvents() {
- if (inputChanged) {
- KeyReport report = {
- 0                                                        };
- for (int i=0; i<6; i++) {
- report.keys[i] = 0;
- } 
- int count = 0;
- for (int i=0; i<NUM_INPUTS; i++) {
- if (inputs[i].pressed && (count < 6)) {
- report.keys[count] = inputs[i].keyCode;
- 
- #ifdef DEBUG3
- Serial.println(report.keys[count]);
- #endif
- 
- count++;        
- }
- }
- if (count > 0) {
- report.modifiers = 0x00;
- report.reserved = 1;
- Keyboard.sendReport(&report);
- } 
- else {
- report.modifiers = 0x00;
- report.reserved = 0;
- Keyboard.sendReport(&report);
- }      
- } 
- else {
- // might need a delay here to compensate for the time it takes to send keyreport
- }
- }
- */
 
 /////////////////////////////
 // SEND MOUSE BUTTON EVENTS 
@@ -679,6 +661,14 @@ void updateOutLEDs()
       if (inputs[i].isKey)
       {
         keyPressed = 1;
+        if(runTimer!=1){
+          setWinner(i);
+        } else {
+          #ifdef DEBUG
+            Serial.println("runTimer still true");
+          #endif
+        }
+        
 #ifdef DEBUG
         Serial.print("Key ");
         Serial.print(i);
@@ -694,14 +684,14 @@ void updateOutLEDs()
 
   if (keyPressed)
   {
-    digitalWrite(outputK, HIGH);
-    digitalWrite(outputM, HIGH);
+    /*digitalWrite(outputK, HIGH);
+    digitalWrite(outputM, HIGH);*/
     TXLED1;
   }
   else
   {
-    digitalWrite(outputK, LOW);
-    digitalWrite(outputM, LOW);
+    /*digitalWrite(outputK, LOW);
+    digitalWrite(outputM, LOW);*/
     TXLED0;
   }
 
@@ -721,14 +711,18 @@ void updateOutLEDs()
 void resetGameplay(){
     winnersPin = 0; //either 14 or 16
     runTimer = 0; 
-    //runFor = 30; // time in seconds
-    timeStart = millis()+10000;
+    timeStart = millis()+timeout;
     timeNow = timeStart;
-    digitalWrite(outputK, HIGH);
-    digitalWrite(outputM, HIGH);
 }
 
 void setWinner(int key){
+  #ifdef DEBUG
+    output = "setWinner [key:";
+    output += key;
+    output += "]";
+    Serial.println(output);
+    output = "";
+  #endif
   if(key==6){
     winnersPin = 14;
   } else {
@@ -738,26 +732,31 @@ void setWinner(int key){
 }
 
 void lightPlayers(){
+  #ifdef DEBUG
+    output = "lightPlayers [winnersPin:";
+    output += winnersPin;
+    output += "]";
+    //Serial.println(output);
+    output = "";
+  #endif
   if(runTimer==1){
-    if(winnersPin==14 && blinkerCounter==1){
+    if(winnersPin==14 /*&& blinkerCounter==1*/){
       digitalWrite(outputK, HIGH);
       digitalWrite(outputM, LOW);
-    } else if(winnersPin==16 && blinkerCounter==1) {
+    } else if(winnersPin==16 /*&& blinkerCounter==1*/) {
       digitalWrite(outputK, LOW);
       digitalWrite(outputM, HIGH);
     } 
   } else { 
-    if(blinkerCounter==1){
-      digitalWrite(outputK, HIGH);
-      digitalWrite(outputM, HIGH);
-    } else {
       digitalWrite(outputK, LOW);
       digitalWrite(outputM, LOW);
-    }
   }
 }
 
 void startGameplayTimer(){
+  #ifdef DEBUG
+    Serial.println("startGameplayTimer");
+  #endif
   runTimer = 1;
 }
 
